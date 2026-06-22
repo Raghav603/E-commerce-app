@@ -9,10 +9,12 @@ import {
 
 import {useDispatch, useSelector} from 'react-redux';
 import {addToCart, removeFromCart} from './redux/action';
+import {addToWishlist, removeFromWishlist} from './redux/action';
 
 const Product = ({item, theme}) => {
   const dispatch = useDispatch();
   const cartItems = useSelector(state => state.Reducer);
+  const wishlistItems = useSelector(state => state.WishlistReducer);
 
   const colors = {
     light: { text: '#222', card: '#fff', counterBg: '#EEF8F0' },
@@ -20,16 +22,35 @@ const Product = ({item, theme}) => {
   };
   const themeColors = theme === 'dark' ? colors.dark : colors.light;
 
-  const itemCount = cartItems.filter(
-    x => x.name === item.name,
-  ).length;
+  const productId = item?.id ?? item?.name;
+
+  const itemCount = cartItems.filter(x => (x?.id ?? x?.name) === productId).length;
+
+  const isLiked = wishlistItems.some(x => (x?.id ?? x?.name) === productId);
+
+  const toggleLike = () => {
+    if (isLiked) {
+      dispatch(removeFromWishlist(productId));
+    } else {
+      dispatch(addToWishlist(item));
+    }
+  };
 
   return (
     <View style={[styles.card, { backgroundColor: themeColors.card }]}>
-      <Image
-        source={{uri: item.image}}
-        style={styles.image}
-      />
+      <View style={styles.imageContainer}>
+        <Image
+          source={{uri: item.image}}
+          style={styles.image}
+        />
+
+        <TouchableOpacity
+          style={styles.likeBtn}
+          onPress={toggleLike}
+          hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
+          <Text style={styles.likeIcon}>{isLiked ? '❤️' : '🤍'}</Text>
+        </TouchableOpacity>
+      </View>
 
       <Text style={[styles.name, { color: themeColors.text }]} numberOfLines={2}>
         {item.name}
@@ -83,11 +104,32 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
 
+  imageContainer: {
+    position: 'relative',
+  },
+
   image: {
     width: '100%',
     height: 150,
     borderRadius: 15,
     resizeMode: 'cover',
+  },
+
+  likeBtn: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+  },
+
+  likeIcon: {
+    fontSize: 16,
   },
 
   name: {

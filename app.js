@@ -16,6 +16,8 @@ import Product from './components/product';
 import Footer from './components/footer';
 import Search from './components/search';
 import Profile from './components/profile';
+import Wishlist from './components/Wishlist';
+import Cart from './components/Cart';
 
 const App = () => {
   const [products, setProducts] = useState([]);
@@ -25,6 +27,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [wishlistSearchToggle, setWishlistSearchToggle] = useState(() => () => {});
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [theme, setTheme] = useState('system'); // 'light', 'dark', 'system'
   const [stack, setStack] = useState(['Home']);
@@ -124,7 +127,10 @@ const App = () => {
         activeTab={activeTab} 
         onProfilePress={() => handleTabPress('Profile', profileScrollRef)} 
         theme={currentTheme} 
+        onWishlistPress={() => setStack(prev => [...prev, 'Wishlist'])}
+        onCartPress={() => setStack(prev => [...prev, 'Cart'])}
         showBack={stack.length > 1}
+        onWishlistSearchPress={wishlistSearchToggle}
         onBackPress={popScreen}
       />
       {activeTab === 'Category' ? (
@@ -135,6 +141,10 @@ const App = () => {
         </View>
       ) : activeTab === 'Profile' ? (
         <Profile theme={currentTheme} themePref={theme} setTheme={setTheme} scrollRef={profileScrollRef} />
+      ) : activeTab === 'Wishlist' ? (
+        <Wishlist theme={currentTheme} setWishlistSearchToggle={setWishlistSearchToggle} />
+      ) : activeTab === 'Cart' ? (
+        <Cart theme={currentTheme} />
       ) : error ? (
         <View style={[styles.centered, { backgroundColor: currentTheme === 'dark' ? '#000' : '#F7F8FA' }]}>
           <Text style={styles.errorText}>{error}</Text>

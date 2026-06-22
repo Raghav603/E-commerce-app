@@ -8,7 +8,10 @@ const Reducer = (state = initialState, action) => {
       return [...state, action.data];
     
     case REMOVE_FROM_CART:
-      const index = state.findIndex(item => item.name === action.data);
+      // action.data can be either product id or name (fallback)
+      const index = state.findIndex(
+        item => (item?.id ?? item?.name) === action.data,
+      );
       if (index >= 0) {
         const newState = [...state];
         newState.splice(index, 1);

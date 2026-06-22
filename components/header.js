@@ -1,10 +1,42 @@
 import React, { useState } from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, TextInput} from 'react-native';
-import {useSelector} from 'react-redux';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { useSelector } from 'react-redux';
 
-const Header = ({ activeTab, onProfilePress, theme, showBack, onBackPress }) => {
+const Header = ({
+  activeTab,
+  onProfilePress,
+  theme,
+  showBack,
+  onBackPress,
+  onWishlistPress,
+  onCartPress,
+  onWishlistSearchPress,
+}) => {
   const cartData = useSelector(state => state.Reducer);
   const [searchQuery, setSearchQuery] = useState('');
+
+  const resolvedActiveTab = activeTab;
+  const resolvedShowBack = showBack;
+
+  const handleBackPress = () => {
+    if (onBackPress) return onBackPress();
+  };
+
+  const handleProfilePress = () => {
+    if (onProfilePress) return onProfilePress();
+  };
+
+  const handleWishlistPress = () => {
+    if (onWishlistPress) return onWishlistPress();
+  };
+
+  const handleWishlistSearchPress = () => {
+    if (onWishlistSearchPress) return onWishlistSearchPress();
+  };
+
+  const handleCartPress = () => {
+    if (onCartPress) return onCartPress();
+  };
 
   const colors = {
     light: { background: '#F7F8FA', text: '#1A1A1A', secondaryText: '#777', searchBg: '#FFFFFF', border: '#E5E5E5' },
@@ -14,49 +46,89 @@ const Header = ({ activeTab, onProfilePress, theme, showBack, onBackPress }) => 
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      <View style={styles.topRow}>
-        <View style={styles.userInfoContainer}>
-          {showBack && (
-            <TouchableOpacity style={styles.backBtn} onPress={onBackPress}>
-              <Text style={[styles.iconText, { color: themeColors.text }]}>←</Text>
+      {resolvedActiveTab === 'Wishlist' ? (
+        <View style={styles.topRow}>
+          <View style={styles.userInfoContainer}>
+            {resolvedShowBack && (
+              <TouchableOpacity style={styles.backBtn} onPress={handleBackPress}>
+                <Text style={[styles.iconText, { color: themeColors.text }]}>❮</Text>
+              </TouchableOpacity>
+            )}
+            <Text style={[styles.title, { color: themeColors.text }]}>My Products</Text>
+          </View>
+          <View style={styles.rightIcons}>
+            <TouchableOpacity style={styles.iconBtn} onPress={handleWishlistSearchPress}>
+              <Text style={[styles.iconText, { color: themeColors.text }]}>🔍︎</Text>
             </TouchableOpacity>
-          )}
-          <TouchableOpacity style={styles.profileIconContainer} onPress={onProfilePress}>
-            <Text style={[styles.iconText, { color: themeColors.text }]}>👤</Text>
-          </TouchableOpacity>
-          <View>
-            <Text style={[styles.helloText, { color: themeColors.secondaryText }]}>Hello</Text>
-            <Text style={[styles.phoneText, { color: themeColors.text }]}>+91 1234567890</Text>
+            <TouchableOpacity style={styles.cartContainer} onPress={handleCartPress}>
+              <Text style={[styles.iconText, { color: themeColors.text }]}>🛒</Text>
+              <View style={styles.badge}><Text style={styles.badgeText}>{cartData.length}</Text></View>
+            </TouchableOpacity>
           </View>
         </View>
-
-        <View style={styles.rightIcons}>
-          <TouchableOpacity style={styles.iconBtn}>
-            <Text style={[styles.iconText, { color: themeColors.text }]}>🔔</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.cartContainer}>
-            <Text style={[styles.iconText, { color: themeColors.text }]}>🛒</Text>
-            <View style={styles.badge}>
-              <Text style={styles.badgeText}>{cartData.length}</Text>
+      ) : resolvedActiveTab === 'Cart' ? (
+        <View style={styles.topRow}>
+          <View style={styles.userInfoContainer}>
+            {resolvedShowBack && (
+              <TouchableOpacity style={styles.backBtn} onPress={handleBackPress}>
+                <Text style={[styles.iconText, { color: themeColors.text }]}>❮</Text>
+              </TouchableOpacity>
+            )}
+            <Text style={[styles.title, { color: themeColors.text }]}>Cart</Text>
+          </View>
+          {/* Right side can be empty or have other icons if needed */}
+        </View>
+      ) : (
+        <>
+          <View style={styles.topRow}>
+            <View style={styles.userInfoContainer}>
+              {resolvedShowBack && (
+                <TouchableOpacity style={styles.backBtn} onPress={handleBackPress}>
+                  <Text style={[styles.iconText, { color: themeColors.text }]}>❮</Text>
+                </TouchableOpacity>
+              )}
+              <TouchableOpacity style={styles.profileIconContainer} onPress={handleProfilePress}>
+                <Text style={[styles.iconText, { color: themeColors.text }]}>👤</Text>
+              </TouchableOpacity>
+              <View>
+                <Text style={[styles.helloText, { color: themeColors.secondaryText }]}>Hello</Text>
+                <Text style={[styles.phoneText, { color: themeColors.text }]}>+91 1234567890</Text>
+              </View>
             </View>
-          </TouchableOpacity>
-        </View>
-      </View>
 
-      {activeTab === 'Home' && (
-        <View style={styles.searchContainer}>
-          <TextInput
-            style={[styles.searchInput, { backgroundColor: themeColors.searchBg, color: themeColors.text, borderColor: themeColors.border }]}
-            placeholder="Search products..."
-            placeholderTextColor={themeColors.secondaryText}
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-          />
-        </View>
+            <View style={styles.rightIcons}>
+              <TouchableOpacity style={styles.iconBtn}>
+                <Text style={[styles.iconText, { color: themeColors.text }]}>🔔</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.iconBtn} onPress={handleWishlistPress}>
+                <Text style={[styles.iconText, { color: themeColors.text }]}>❤️</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.cartContainer} onPress={handleCartPress}>
+                <Text style={[styles.iconText, { color: themeColors.text }]}>🛒</Text>
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{cartData.length}</Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {resolvedActiveTab === 'Home' && (
+            <View style={styles.searchContainer}>
+              <TextInput
+                style={[styles.searchInput, { backgroundColor: themeColors.searchBg, color: themeColors.text, borderColor: themeColors.border }]}
+                placeholder="Search products..."
+                placeholderTextColor={themeColors.secondaryText}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+            </View>
+          )}
+        </>
       )}
     </View>
-  );
+  )
 };
 
 const styles = StyleSheet.create({
@@ -68,7 +140,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 28,
-    fontWeight: '700',
+    fontWeight: 'bold',
     color: '#1A1A1A',
     marginTop: 4,
   },
