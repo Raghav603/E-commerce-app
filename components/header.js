@@ -12,6 +12,7 @@ const Header = ({
   onCartPress,
   onWishlistSearchPress,
 }) => {
+
   const cartData = useSelector(state => state.Reducer);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -42,11 +43,13 @@ const Header = ({
     light: { background: '#F7F8FA', text: '#1A1A1A', secondaryText: '#777', searchBg: '#FFFFFF', border: '#E5E5E5' },
     dark: { background: '#000', text: '#fff', secondaryText: '#A9A9A9', searchBg: '#1A1A1A', border: '#333' }
   };
-  const themeColors = theme === 'dark' ? colors.dark : colors.light;
+  const themeResolved = theme === 'system' ? 'light' : theme;
+  const themeColors = themeResolved === 'dark' ? colors.dark : colors.light;
+
 
   return (
-    <View style={[styles.container, { backgroundColor: themeColors.background }]}>
-      {resolvedActiveTab === 'Wishlist' ? (
+    <View style={[styles.container, { backgroundColor: themeColors.background }]}> 
+      {resolvedActiveTab === 'Category' || resolvedActiveTab === 'CategoryTab' ? (
         <View style={styles.topRow}>
           <View style={styles.userInfoContainer}>
             {resolvedShowBack && (
@@ -54,7 +57,38 @@ const Header = ({
                 <Text style={[styles.iconText, { color: themeColors.text }]}>❮</Text>
               </TouchableOpacity>
             )}
-            <Text style={[styles.title, { color: themeColors.text }]}>My Products</Text>
+            <Text style={[styles.categoryTitle, { color: themeColors.text }]}>CATERGORIES</Text>
+
+          </View>
+
+          <View style={styles.rightIcons}>
+            {/* Search icon (no text input on header) */}
+            <TouchableOpacity style={styles.iconBtn}>
+              <Text style={[styles.iconText, { color: themeColors.text }]}>🔍︎</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.iconBtn} onPress={handleWishlistPress}>
+              <Text style={[styles.iconText, { color: themeColors.text }]}>❤️</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.cartContainer} onPress={handleCartPress}>
+              <Text style={[styles.iconText, { color: themeColors.text }]}>🛒</Text>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{cartData.length}</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+
+        </View>
+      ) : resolvedActiveTab === 'Wishlist' ? (
+        <View style={styles.topRow}>
+          <View style={styles.userInfoContainer}>
+            {resolvedShowBack && (
+              <TouchableOpacity style={styles.backBtn} onPress={handleBackPress}>
+                <Text style={[styles.iconText, { color: themeColors.text }]}>❮</Text>
+              </TouchableOpacity>
+            )}
+              <Text style={[styles.title, { color: themeColors.text }]}>My Products</Text>
           </View>
           <View style={styles.rightIcons}>
             <TouchableOpacity style={styles.iconBtn} onPress={handleWishlistSearchPress}>
@@ -114,17 +148,7 @@ const Header = ({
             </View>
           </View>
 
-          {resolvedActiveTab === 'Home' && (
-            <View style={styles.searchContainer}>
-              <TextInput
-                style={[styles.searchInput, { backgroundColor: themeColors.searchBg, color: themeColors.text, borderColor: themeColors.border }]}
-                placeholder="Search products..."
-                placeholderTextColor={themeColors.secondaryText}
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-              />
-            </View>
-          )}
+
         </>
       )}
     </View>

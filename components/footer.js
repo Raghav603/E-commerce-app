@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 
-const Footer = ({ activeTab, theme, onHomePress, onCategoryPress, onMyOrderPress, onProfilePress }) => {
+const Footer = ({ activeTab, theme, onHomePress, onCategoryPress, onMyOrderPress, onProfilePress, onBackPressFromFooter }) => {
+
   const colors = {
     light: { background: '#fff', text: '#1A1A1A', border: '#E5E5E5', active: '#5DB075' },
     dark: { background: '#121212', text: '#fff', border: '#272727', active: '#5DB075' }
@@ -22,7 +23,10 @@ const Footer = ({ activeTab, theme, onHomePress, onCategoryPress, onMyOrderPress
         <Text style={[styles.iconText, { color: themeColors.text }]}>📦</Text>
         <Text style={[styles.tabText, { color: themeColors.text }, activeTab === 'MyOrder' && { color: themeColors.active, fontWeight: 'bold' }]}>MyOrder</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.tabBtn} onPress={onProfilePress}>
+      <TouchableOpacity style={styles.tabBtn} onPress={() => {
+        if (activeTab === 'Category' && onBackPressFromFooter) return onBackPressFromFooter();
+        return onProfilePress();
+      }}>
         <Text style={[styles.iconText, { color: themeColors.text }]}>👤</Text>
         <Text style={[styles.tabText, { color: themeColors.text }, activeTab === 'Profile' && { color: themeColors.active, fontWeight: 'bold' }]}>Profile</Text>
       </TouchableOpacity>

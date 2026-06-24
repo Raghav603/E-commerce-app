@@ -1,32 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, TextInput } from 'react-native';
 
+import { useSearchViewModel } from '../viewmodels/searchViewModel';
+
 const Search = ({ theme, listRef }) => {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
+  const { loading, filteredCategories, searchQuery, setSearchQuery } = useSearchViewModel();
 
   const colors = {
     light: { background: '#F7F8FA', text: '#1A1A1A', card: '#FFFFFF', primary: '#5DB075', searchBg: '#FFFFFF', searchPlaceholder: '#999', border: '#E5E5E5' },
-    dark: { background: '#000', text: '#fff', card: '#121212', primary: '#5DB075', searchBg: '#1A1A1A', searchPlaceholder: '#777', border: '#333' }
+    dark: { background: '#000', text: '#fff', card: '#121212', primary: '#5DB075', searchBg: '#1A1A1A', searchPlaceholder: '#777', border: '#333' },
   };
   const themeColors = theme === 'dark' ? colors.dark : colors.light;
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch('https://dummyjson.com/products/categories');
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategories();
-  }, []);
 
   if (loading) {
     return (
@@ -35,11 +19,6 @@ const Search = ({ theme, listRef }) => {
       </View>
     );
   }
-
-  const filteredCategories = categories.filter(item => {
-    const itemName = item.name || (typeof item === 'string' ? item.replace('-', ' ') : 'Category');
-    return itemName.toLowerCase().includes(searchQuery.toLowerCase());
-  });
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
@@ -70,6 +49,7 @@ const Search = ({ theme, listRef }) => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {

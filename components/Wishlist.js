@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, FlatList, TextInput } from 'react-native';
 
+import { useSelector } from 'react-redux';
+
+import Product from './product';
+
+
+
 const Wishlist = ({ theme, setWishlistSearchToggle }) => {
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -11,12 +17,16 @@ const Wishlist = ({ theme, setWishlistSearchToggle }) => {
   };
   const themeColors = theme === 'dark' ? colors.dark : colors.light;
 
-  // Placeholder for liked items
-  const likedItems = [];
+  const likedItems = useSelector(state => state.WishlistReducer || []);
 
+
+  // Parent passes a toggle function through MVVM/viewmodel
   useEffect(() => {
-    setWishlistSearchToggle(() => () => setSearchVisible(prev => !prev));
+    if (typeof setWishlistSearchToggle === 'function') {
+      setWishlistSearchToggle(() => () => setSearchVisible((prev) => !prev));
+    }
   }, [setWishlistSearchToggle]);
+
 
   return (
     <View style={[styles.container, { backgroundColor: themeColors.background }]}>
@@ -33,8 +43,14 @@ const Wishlist = ({ theme, setWishlistSearchToggle }) => {
         <FlatList
           data={likedItems}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <Text style={{color: themeColors.text}}>{item.name}</Text>}
+          renderItem={({ item }) => (
+            <View style={styles.productWrapper}>
+              <Product item={item} theme={theme} />
+            </View>
+          )}
+          contentContainerStyle={styles.listContent}
         />
+
       )}
     </View>
   );
@@ -60,6 +76,21 @@ const styles = StyleSheet.create({
   listContent: {
     paddingHorizontal: 20,
   },
+  itemContainer: {
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E5E5',
+  },
+  itemName: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  itemPrice: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
 });
+
 
 export default Wishlist;
