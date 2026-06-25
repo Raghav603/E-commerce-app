@@ -6,6 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import HomeScreen from './HomeScreen';
 import CategoryScreen from './CategoryScreen';
+import CategoryDetailScreen from './CategoryDetailScreen'; // 👈 Newly Added
 import WishlistScreen from './WishlistScreen';
 import WishlistSearchScreen from './WishlistSearchScreen';
 import CartScreen from './CartScreen';
@@ -60,7 +61,6 @@ const TabBar = ({ state, navigation, resolvedTheme }) => {
 
 // ─── Bottom tab stack ────────────────────────────────────────────────────────
 function HomeTabsStack({ resolvedTheme }) {
-  // We pass resolvedTheme down so each tab screen can use it directly.
   const screenProps = { resolvedTheme };
 
   return (
@@ -86,8 +86,6 @@ export default function AppNavigator() {
 
   const setTheme = useCallback((pref) => setThemePref(pref), []);
 
-  // HomeTabsStack needs resolvedTheme but React Navigation doesn't easily pass
-  // non-serialisable values as params, so we wrap it in a closure.
   const HomeTabsComponent = useCallback(
     () => <HomeTabsStack resolvedTheme={resolvedTheme} />,
     [resolvedTheme],
@@ -121,6 +119,14 @@ export default function AppNavigator() {
           <Stack.Screen name="Profile"         component={ProfileScreen} />
           <Stack.Screen name="MyOrder"         component={MyOrderScreen} />
           <Stack.Screen name="Category"        component={CategoryScreen} />
+          
+          {/* 👇 New Category Detail Screen */}
+          <Stack.Screen 
+            name="CategoryDetail"  
+            component={CategoryDetailScreen} 
+            options={{ headerShown: false }} // 👈 Hides the global header
+          />
+          
           <Stack.Screen name="Home"            component={HomeScreen} />
         </Stack.Navigator>
       </NavigationContainer>
