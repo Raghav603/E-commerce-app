@@ -16,20 +16,25 @@ export function useHomeViewModel(initialCategory = '') {
   const [error, setError]             = useState(null);
   const [hasMore, setHasMore]         = useState(true);
 
-  const [currentSort, setCurrentSort]             = useState('Relevance');
-  const [currentCategories, setCurrentCategories] = useState(normalise(initialCategory));
-  const [currentGender, setCurrentGender]         = useState('');
+  const [currentSort, setCurrentSort] = useState('Relevance');
+  
+  // ─── UNIFIED FILTERS STATE ───
+  const [filters, setFilters] = useState({
+    categories: normalise(initialCategory),
+    gender: '',
+    price: null,
+    rating: null,
+    discount: null,
+  });
 
   const mountedRef    = useRef(true);
   const pageRef       = useRef(0);
   const isFetchingRef = useRef(false);
   const sortRef       = useRef('Relevance');
-  const categoriesRef = useRef(normalise(initialCategory)); 
-  const genderRef     = useRef('');
+  const filtersRef    = useRef(filters);
 
   sortRef.current       = currentSort;
-  categoriesRef.current = currentCategories;
-  genderRef.current     = currentGender;
+  filtersRef.current    = filters;
 
   useEffect(() => {
     mountedRef.current = true;
@@ -43,9 +48,8 @@ export function useHomeViewModel(initialCategory = '') {
     isFetchingRef.current = true;
     setError(null);
 
-    const sort       = sortRef.current;
-    const categories = categoriesRef.current;
-    const gender     = genderRef.current; 
+    const sort = sortRef.current;
+    const f    = filtersRef.current; 
 
     try {
       if (isRefresh) {
@@ -61,20 +65,11 @@ export function useHomeViewModel(initialCategory = '') {
       else if (sort === 'Ratings')             { sortBy = 'rating';              order = 'desc'; }
       else if (sort === 'Discount')            { sortBy = 'discountPercentage';  order = 'desc'; }
 
-      const apiCategory = categories.length === 1 ? categories[0] : '';
+      const apiCategory = f.categories.length === 1 ? f.categories[0] : '';
+      const hasAdvancedFilter = !!(f.gender || f.price || f.rating || f.discount);
 
-      // ─── 1. SMART GENDER FETCH OVERRIDE ────────────────────────────────────
-      const g = (gender || '').toLowerCase();
-      const isMen = g === 'man' || g === 'men' || g === 'male';
-      const isWomen = g === 'woman' || g === 'women' || g === 'female';
-      const isBoy = g === 'boy';
-      const isGirl = g === 'girl';
-      const hasGenderFilter = isMen || isWomen || isBoy || isGirl;
-
-      // If a gender is selected, bypass the standard pagination and fetch the entire catalog 
-      // (limit 200) instantly. This pulls items buried deep at #80+ straight to the front.
-      const fetchLimit = hasGenderFilter ? 200 : LIMIT;
-      const fetchSkip = hasGenderFilter ? 0 : pageRef.current;
+      const fetchLimit = hasAdvancedFilter ? 200 : LIMIT;
+      const fetchSkip = hasAdvancedFilter ? 0 : pageRef.current;
 
       const mapped = await productService.fetchProducts({
         limit:      fetchLimit,
@@ -91,24 +86,51 @@ export function useHomeViewModel(initialCategory = '') {
             ? [...mapped] 
             : [...prev, ...mapped.filter((p) => !new Set(prev.map(x => x.id)).has(p.id))];
 
-        // ─── LOCAL CATEGORY FILTER ───
-        if (categories.length > 1) {
-          combined = combined.filter(p => categories.includes(p.category));
+        // 1. Categories Filter
+        if (f.categories.length > 1) {
+          combined = combined.filter(p => f.categories.includes(p.category));
         }
 
-        // ─── LOCAL GENDER FILTER ───
-        if (hasGenderFilter) {
+        // 2. Gender Filter
+        if (f.gender) {
+          const g = f.gender.toLowerCase().trim();
+          const isWomen = g.includes('woman') || g.includes('women') || g.includes('female');
+          const isMen   = !isWomen && (g.includes('man') || g.includes('men') || g.includes('male'));
+          const isBoy   = g.includes('boy');
+          const isGirl  = g.includes('girl');
+
           combined = combined.filter(p => {
             const cat = (p.category || '').toLowerCase();
             if (isMen) return cat.includes('mens');
             if (isWomen) return cat.includes('womens') || cat === 'tops';
             if (isBoy) return cat.includes('boy') || cat.includes('boys');
             if (isGirl) return cat.includes('girl') || cat.includes('girls');
-            return true;
+            return false;
           });
         }
 
-        // ─── GUARANTEED LOCAL SORTING ───
+        // 3. Price Filter
+        if (f.price) {
+          combined = combined.filter(p => {
+            const priceVal = typeof p.price === 'string' ? parseFloat(p.price.replace(/[^0-9.]/g, '')) : (p.price || 0);
+            return priceVal >= f.price.min && priceVal <= f.price.max;
+          });
+        }
+
+        // 4. Rating Filter
+        if (f.rating) {
+          combined = combined.filter(p => (p.rating || 0) >= f.rating);
+        }
+
+        // 5. Discount Filter
+        if (f.discount) {
+          combined = combined.filter(p => {
+            const disc = p.discountPercent ?? p.discountPercentage ?? 0;
+            return disc >= f.discount;
+          });
+        }
+
+        // 6. Local Sorting
         if (sortBy) {
           combined.sort((a, b) => {
             let valA = 0, valB = 0;
@@ -129,11 +151,8 @@ export function useHomeViewModel(initialCategory = '') {
         return combined;
       });
 
-      // ─── 2. ADJUST PAGINATION LOGIC ──────────────────────────────────────
-      pageRef.current = hasGenderFilter ? 200 : pageRef.current + LIMIT;
-      
-      // If we just fetched all 200 items for the gender filter, there's no more data to load.
-      setHasMore(hasGenderFilter ? false : (categories.length <= 1 ? mapped.length === LIMIT : false));
+      pageRef.current = hasAdvancedFilter ? 200 : pageRef.current + LIMIT;
+      setHasMore(hasAdvancedFilter ? false : (f.categories.length <= 1 ? mapped.length === LIMIT : false));
 
     } catch (err) {
       if (!mountedRef.current) return;
@@ -155,41 +174,19 @@ export function useHomeViewModel(initialCategory = '') {
     pageRef.current       = 0;
     isFetchingRef.current = false; 
     fetchPage(true);
-  }, [currentSort, currentCategories, currentGender]); 
+  }, [currentSort, filters]); // 👈 Automatically refreshes list when any filter changes
 
   const refresh  = useCallback(() => fetchPage(true),  [fetchPage]);
   const loadMore = useCallback(() => fetchPage(false), [fetchPage]);
 
-  const applySort = useCallback((option) => {
-    if (sortRef.current === option) return;
-    setCurrentSort(option);
-  }, []);
-
-  const applyCategories = useCallback((slugs) => {
-    const next = normalise(slugs);
-    const curr = categoriesRef.current;
-    const same = next.length === curr.length && next.every((s) => curr.includes(s));
-    if (same) return;
-    setCurrentCategories(next);
-  }, []);
-
-  const applyCategory = useCallback(
-    (slug) => applyCategories(slug ? [slug] : []),
-    [applyCategories],
-  );
-
-  const applyGender = useCallback((g) => {
-    if (genderRef.current === g) return;
-    setCurrentGender(g);
-  }, []);
+  const applySort = useCallback((option) => setCurrentSort(option), []);
+  const applyCategories = useCallback((cats) => setFilters(prev => ({ ...prev, categories: cats })), []);
+  const applyGender = useCallback((g) => setFilters(prev => ({ ...prev, gender: g })), []);
+  const applyAllFilters = useCallback((newFilters) => setFilters(newFilters), []);
 
   return {
     products, loading, refreshing, loadingMore, error, hasMore,
-    refresh, loadMore,
-    currentSort,       applySort,
-    currentCategories, applyCategories,
-    currentCategory:   currentCategories[0] ?? '',
-    applyCategory,
-    currentGender,     applyGender 
+    refresh, loadMore, applySort, currentSort,
+    filters, applyCategories, applyGender, applyAllFilters // 👈 Export unified methods
   };
 }

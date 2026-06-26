@@ -1,5 +1,6 @@
 import {ADD_TO_CART} from './constants';
 import {REMOVE_FROM_CART} from './constants';
+import {REMOVE_ALL_FROM_CART} from './constants';
 
 
 export function addToCart(item){
@@ -12,6 +13,12 @@ export function addToCart(item){
 export function removeFromCart(item){
   return{
     type:REMOVE_FROM_CART,
+    data:item
+  }
+}
+export function removeAllFromCart(item){
+  return{
+    type:REMOVE_ALL_FROM_CART,
     data:item
   }
 }

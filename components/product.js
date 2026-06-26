@@ -32,11 +32,21 @@ const Product = ({ item, theme }) => {
   const toggleLike = () =>
     isLiked ? dispatch(removeFromWishlist(productId)) : dispatch(addToWishlist(item));
 
-  // Derive a discount percentage if item has originalPrice / mrp
+  // Parse raw price — productService stores as number (INR) or legacy "$X" string
+  const rawPrice = typeof item.price === 'number'
+    ? item.price
+    : parseFloat(String(item.price).replace(/[^0-9.]/g, '')) * 84;
+
+  const currentPrice = Math.round(rawPrice);
+
+  // Derive discount — use discountPercent from API first, then calculate from originalPrice
   const originalPrice = item.originalPrice ?? item.mrp ?? item.comparePrice ?? null;
-  const currentPrice  = parseFloat(String(item.price).replace(/[^0-9.]/g, ''));
-  const discount = originalPrice
-    ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
+  const originalPriceINR = originalPrice ? Math.round(originalPrice * 84) : null;
+
+  const discount = item.discountPercent
+    ? Math.round(item.discountPercent)
+    : originalPriceINR
+    ? Math.round(((originalPriceINR - currentPrice) / originalPriceINR) * 100)
     : null;
 
   // Rating — use item.rating if present
@@ -85,10 +95,10 @@ const Product = ({ item, theme }) => {
         {/* Price row + add to cart */}
         <View style={styles.bottomRow}>
           <View>
-            <Text style={styles.price}>{item.price}</Text>
-            {originalPrice && (
+            <Text style={styles.price}>₹{currentPrice.toLocaleString('en-IN')}</Text>
+            {originalPriceINR && originalPriceINR > currentPrice && (
               <Text style={[styles.originalPrice, { color: colors.subText }]}>
-                ₹{originalPrice}
+                ₹{originalPriceINR.toLocaleString('en-IN')}
               </Text>
             )}
           </View>

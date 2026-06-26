@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useContext } from 'react';
 import { useColorScheme } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -6,7 +6,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import HomeScreen from './HomeScreen';
 import CategoryScreen from './CategoryScreen';
-import CategoryDetailScreen from './CategoryDetailScreen'; // 👈 Newly Added
+import CategoryDetailScreen from './CategoryDetailScreen';
 import WishlistScreen from './WishlistScreen';
 import WishlistSearchScreen from './WishlistSearchScreen';
 import CartScreen from './CartScreen';
@@ -16,19 +16,25 @@ import ProfileScreen from './ProfileScreen';
 import Header from '../components/header';
 import Footer from '../components/footer';
 
-// ─── Global theme context ────────────────────────────────────────────────────
+// ─── Global theme context ─────────────────────────────────────────────────────
 export const ThemeContext = React.createContext({
   themePref: 'system',
   resolvedTheme: 'light',
   setTheme: () => {},
 });
 
-const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
+// ─── Shared ref so the header 🔍 button can toggle the search bar
+//     inside WishlistScreen without any navigation ───────────────────────────
+export const WishlistSearchRef = React.createRef();
 
-// ─── Header wrapper ──────────────────────────────────────────────────────────
-const HeaderWrapper = ({ navigation, resolvedTheme, activeTab }) => (
-  <Header
+const Stack = createNativeStackNavigator();
+const Tab   = createBottomTabNavigator();
+
+// ─── Header wrapper ───────────────────────────────────────────────────────────
+const HeaderWrapper = ({ navigation, activeTab }) => {
+  const { resolvedTheme } = useContext(ThemeContext);
+  return (
+    <Header
       activeTab={activeTab}
       theme={resolvedTheme}
       showBack={navigation.canGoBack()}
@@ -38,12 +44,17 @@ const HeaderWrapper = ({ navigation, resolvedTheme, activeTab }) => (
       onProfilePress={() => navigation.navigate('Profile')}
       onWishlistPress={() => navigation.navigate('Wishlist')}
       onCartPress={() => navigation.navigate('Cart')}
-      onWishlistSearchPress={() => navigation.navigate('WishlistSearch')}
+      onWishlistSearchPress={() => {
+        // Toggle the search bar inside WishlistScreen directly — no navigation
+        if (WishlistSearchRef.current) WishlistSearchRef.current();
+      }}
     />
-);
+  );
+};
 
-// ─── Footer (tab bar) ────────────────────────────────────────────────────────
-const TabBar = ({ state, navigation, resolvedTheme }) => {
+// ─── Footer (tab bar) ─────────────────────────────────────────────────────────
+const TabBar = ({ state, navigation }) => {
+  const { resolvedTheme } = useContext(ThemeContext);
   const activeRouteMap = { Home: 'Home', Category: 'Category', MyOrder: 'MyOrder', Profile: 'Profile' };
   const activeTab = activeRouteMap[state?.routes?.[state.index]?.name] ?? 'Home';
 
@@ -59,37 +70,30 @@ const TabBar = ({ state, navigation, resolvedTheme }) => {
   );
 };
 
-// ─── Bottom tab stack ────────────────────────────────────────────────────────
-function HomeTabsStack({ resolvedTheme }) {
-  const screenProps = { resolvedTheme };
-
+// ─── Bottom tab stack — stable component, reads theme from context ────────────
+// NOT wrapped in useCallback — stable reference prevents tab remounting on theme change
+function HomeTabsStack() {
   return (
     <Tab.Navigator
       initialRouteName="Home"
       screenOptions={{ headerShown: false }}
-      tabBar={(props) => <TabBar {...props} resolvedTheme={resolvedTheme} />}
+      tabBar={(props) => <TabBar {...props} />}
     >
-      <Tab.Screen name="Home"     component={HomeScreen}     initialParams={screenProps} />
-      <Tab.Screen name="Category" component={CategoryScreen} initialParams={screenProps} />
-      <Tab.Screen name="MyOrder"  component={MyOrderScreen}  initialParams={screenProps} />
-      <Tab.Screen name="Profile"  component={ProfileScreen}  initialParams={screenProps} />
+      <Tab.Screen name="Home"     component={HomeScreen} />
+      <Tab.Screen name="Category" component={CategoryScreen} />
+      <Tab.Screen name="MyOrder"  component={MyOrderScreen} />
+      <Tab.Screen name="Profile"  component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
 
-// ─── Root navigator ──────────────────────────────────────────────────────────
+// ─── Root navigator ───────────────────────────────────────────────────────────
 export default function AppNavigator() {
-  const systemScheme = useColorScheme(); // 'light' | 'dark' | null
-  const [themePref, setThemePref] = useState('system'); // 'light' | 'dark' | 'system'
+  const systemScheme = useColorScheme();
+  const [themePref, setThemePref] = useState('system');
 
   const resolvedTheme = themePref === 'system' ? (systemScheme ?? 'light') : themePref;
-
   const setTheme = useCallback((pref) => setThemePref(pref), []);
-
-  const HomeTabsComponent = useCallback(
-    () => <HomeTabsStack resolvedTheme={resolvedTheme} />,
-    [resolvedTheme],
-  );
 
   return (
     <ThemeContext.Provider value={{ themePref, resolvedTheme, setTheme }}>
@@ -99,35 +103,28 @@ export default function AppNavigator() {
           screenOptions={({ navigation, route }) => {
             let activeTab = route.name;
             if (route.name === 'HomeTabs') activeTab = 'Home';
+            if (route.name === 'CategoryDetail') activeTab = route.params?.categoryName ?? 'Category';
 
             return {
               headerShown: true,
               header: () => (
                 <HeaderWrapper
                   navigation={navigation}
-                  resolvedTheme={resolvedTheme}
                   activeTab={activeTab}
                 />
               ),
             };
           }}
         >
-          <Stack.Screen name="HomeTabs"       component={HomeTabsComponent}    options={{ headerShown: true }} />
-          <Stack.Screen name="Wishlist"        component={WishlistScreen} />
-          <Stack.Screen name="WishlistSearch"  component={WishlistSearchScreen} />
-          <Stack.Screen name="Cart"            component={CartScreen} />
-          <Stack.Screen name="Profile"         component={ProfileScreen} />
-          <Stack.Screen name="MyOrder"         component={MyOrderScreen} />
-          <Stack.Screen name="Category"        component={CategoryScreen} />
-          
-          {/* 👇 New Category Detail Screen */}
-          <Stack.Screen 
-            name="CategoryDetail"  
-            component={CategoryDetailScreen} 
-            options={{ headerShown: false }} // 👈 Hides the global header
-          />
-          
-          <Stack.Screen name="Home"            component={HomeScreen} />
+          <Stack.Screen name="HomeTabs"      component={HomeTabsStack}       options={{ headerShown: true }} />
+          <Stack.Screen name="Wishlist"       component={WishlistScreen} />
+          <Stack.Screen name="WishlistSearch" component={WishlistSearchScreen} />
+          <Stack.Screen name="Cart"           component={CartScreen} />
+          <Stack.Screen name="Profile"        component={ProfileScreen} />
+          <Stack.Screen name="MyOrder"        component={MyOrderScreen} />
+          <Stack.Screen name="Category"       component={CategoryScreen} />
+          <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} options={{ headerShown: false }} />
+          <Stack.Screen name="Home"           component={HomeScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </ThemeContext.Provider>

@@ -30,7 +30,7 @@ const CHIP_COLORS = [
 ];
 const getCategoryColor = (index) => CHIP_COLORS[index % CHIP_COLORS.length];
 
-// ─── Horizontal Category Row ─────────────────────────────────────────────────
+// ─── Horizontal Category Row (Chips ONLY navigate) ───────────────────────────
 const CategoryRow = ({ resolvedTheme, filteredCategories }) => {
   const navigation = useNavigation();
   const textColor = resolvedTheme === 'dark' ? '#fff' : '#1A1A1A';
@@ -58,7 +58,6 @@ const CategoryRow = ({ resolvedTheme, filteredCategories }) => {
           <TouchableOpacity
             key={key}
             style={styles.chipWrapper}
-            // 👈 Navigates to a new page instead of applying local filters
             onPress={() => navigation.navigate('CategoryDetail', { categoryName: label, categorySlug: slug })} 
             activeOpacity={0.75}
           >
@@ -118,11 +117,13 @@ export default function HomeScreen() {
   
   const { 
     products, loading, refreshing, loadingMore, error, hasMore, 
-    refresh, loadMore, applySort, currentSort, applyCategories, currentCategories,
-    applyGender, currentGender 
+    refresh, loadMore, applySort, currentSort, 
+    filters, applyCategories, applyGender, applyAllFilters 
   } = useHomeViewModel(); 
   
-  const { filteredCategories } = useSearchViewModel();
+  // Safe search view model hook to prevent undefined crashes
+  const searchData = useSearchViewModel() || {};
+  const filteredCategories = searchData.filteredCategories || [];
 
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isSortModalVisible, setSortModalVisible] = useState(false);
@@ -131,10 +132,6 @@ export default function HomeScreen() {
   const [isComprehensiveFilterModalVisible, setComprehensiveFilterModalVisible] = useState(false);
 
   const scrollToTop = () => flatListRef.current?.scrollToOffset?.({ offset: 0, animated: true });
-
-  const handleSortSelection = (option) => { setSortModalVisible(false); applySort(option); };
-  const handleCategoryApply = (categoriesArray) => { setCategoryModalVisible(false); applyCategories(categoriesArray); };
-  const handleGenderApply = (gender) => { setGenderModalVisible(false); applyGender(gender); };
 
   const renderEmptyState = () => {
     if (loading) {
@@ -170,7 +167,6 @@ export default function HomeScreen() {
         keyExtractor={(item, index) => String(`${item.id}-${index}`)}
         ListHeaderComponent={
           <View>
-            {/* 👈 Unlinked chips from currentCategories */}
             <CategoryRow 
               resolvedTheme={resolvedTheme} 
               filteredCategories={filteredCategories} 
@@ -184,7 +180,7 @@ export default function HomeScreen() {
             />
           </View>
         }
-        ListEmptyComponent={renderEmptyState}
+        ListEmptyComponent={renderEmptyState} 
         renderItem={({ item }) => (
           <View style={styles.gridItem}>
             <Product item={item} theme={resolvedTheme} />
@@ -209,30 +205,50 @@ export default function HomeScreen() {
         </TouchableOpacity>
       )}
 
-      {/* Modals placed outside of FlatList to prevent rendering issues */}
-      <SortModal visible={isSortModalVisible} onClose={() => setSortModalVisible(false)} selectedOption={currentSort} onSelectOption={handleSortSelection} theme={resolvedTheme} />
-      <CategoryModal visible={isCategoryModalVisible} onClose={() => setCategoryModalVisible(false)} categories={filteredCategories || []} selectedCategories={currentCategories} onApply={handleCategoryApply} theme={resolvedTheme} />
-      <GenderModal visible={isGenderModalVisible} onClose={() => setGenderModalVisible(false)} selectedGender={currentGender} onApply={handleGenderApply} theme={resolvedTheme} />
+      <SortModal 
+        visible={isSortModalVisible} 
+        onClose={() => setSortModalVisible(false)} 
+        selectedOption={currentSort} 
+        onSelectOption={(o) => { setSortModalVisible(false); applySort(o); }} 
+        theme={resolvedTheme} 
+      />
+      
+      <CategoryModal 
+        visible={isCategoryModalVisible} 
+        onClose={() => setCategoryModalVisible(false)} 
+        categories={filteredCategories} 
+        selectedCategory={filters.categories} 
+        onApply={(c) => { setCategoryModalVisible(false); applyCategories(c); }} 
+        theme={resolvedTheme} 
+      />
+      
+      <GenderModal 
+        visible={isGenderModalVisible} 
+        onClose={() => setGenderModalVisible(false)} 
+        selectedGender={filters.gender} 
+        onApply={(g) => { setGenderModalVisible(false); applyGender(g); }} 
+        theme={resolvedTheme} 
+      />
+      
       <ComprehensiveFilterModal
         visible={isComprehensiveFilterModalVisible}
         onClose={() => setComprehensiveFilterModalVisible(false)}
-        categories={filteredCategories || []}
-        currentFilters={{
-          categories: currentCategories,
-          gender: currentGender,
-        }}
-        onApply={() => {
+        categories={filteredCategories}
+        currentFilters={filters}
+        onApply={(newFilters) => {
           setComprehensiveFilterModalVisible(false);
+          applyAllFilters(newFilters); // 👈 Correctly applies all advanced filters!
         }}
         theme={resolvedTheme}
       />
+
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  emptyContainer: { paddingTop: 60, alignItems: 'center' },
+  emptyContainer: { paddingTop: 60, alignItems: 'center' }, 
   listContent: { paddingHorizontal: 8, paddingTop: 4, paddingBottom: 100 },
   gridItem: { flex: 1, marginHorizontal: 5, marginVertical: 5 },
   errorText: { color: '#B00020', fontSize: 16, fontWeight: '500' },
@@ -253,6 +269,6 @@ const styles = StyleSheet.create({
   filterDropdown: { fontSize: 16, fontWeight: '300', marginTop: -4 },
   divider: { width: 1, height: 20 },
   
-  topButton: { position: 'absolute', bottom: 80, right: 20, backgroundColor: '#5DB075', width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', elevation: 8 },
+  topButton: { position: 'absolute', bottom: 20, right: 20, backgroundColor: '#5DB075', width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', elevation: 8 },
   buttonText: { color: '#FFFFFF', fontSize: 24, fontWeight: 'bold' },
 });
