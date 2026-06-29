@@ -86,7 +86,7 @@ const Header = ({
                   style={styles.backBtn}
                   onPress={() => { setIsSearching(false); setSearchQuery(''); handleWishlistSearchPress(); }}
                 >
-                  <Text style={[styles.iconText, { color: themeColors.text }]}>✕</Text>
+                  {/* <Text style={[styles.iconText, { color: themeColors.text }]}>✕</Text> */}
                 </TouchableOpacity>
               ) : (
                 <Text style={[styles.title, { color: themeColors.text }]}>My Products</Text>
@@ -97,7 +97,7 @@ const Header = ({
               {/* Toggle search icon — active state shown in teal */}
               <TouchableOpacity style={styles.iconBtn} onPress={handleSearchToggle}>
                 <Text style={[styles.iconText, { color: isSearching ? '#5DB075' : themeColors.text }]}>
-                  🔍︎
+                  🔍︎  
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.cartContainer} onPress={handleCartPress}>

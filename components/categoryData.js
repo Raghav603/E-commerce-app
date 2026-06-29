@@ -1,6 +1,3 @@
-import { useCallback, useMemo, useState } from 'react';
-
-// ─── STATIC CATEGORY DATA WITH IMAGES ────────────────────────────────────────
 const CATEGORIES_WITH_IMAGES = [
   { slug: "beauty", name: "Beauty", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEO5i9x5OPJ-c5NRXQobRQFLgBptYwby5myXFJE1D53A&s=10" },
   { slug: "fragrances", name: "Fragrances", image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=500&q=60" },
@@ -25,30 +22,3 @@ const CATEGORIES_WITH_IMAGES = [
   { slug: "womens-shoes", name: "Womens Shoes", image: "https://images.unsplash.com/photo-1543163521-1bf539c55dd2?auto=format&fit=crop&w=500&q=60" },
   { slug: "womens-watches", name: "Womens Watches", image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrLGst7mvLgoUraSLkYvYxdbHvhnWjs-qkL7AQBjDm0g&s=10" }
 ];
-
-export function useSearchViewModel() {
-  // Use the static data directly
-  const [categories] = useState(CATEGORIES_WITH_IMAGES);
-  
-  // Hardcoded to false because static data loads instantly
-  const [loading] = useState(false); 
-  const [searchQuery, setSearchQuery] = useState('');
-
-  // Keeps your existing search logic perfectly intact
-  const filteredCategories = useMemo(() => {
-    return categories.filter((item) => {
-      const itemName = item?.name || (typeof item === 'string' ? item.replace('-', ' ') : 'Category');
-      return itemName.toLowerCase().includes(searchQuery.toLowerCase());
-    });
-  }, [categories, searchQuery]);
-
-  const onChangeQuery = useCallback((v) => setSearchQuery(v), []);
-
-  return {
-    loading,
-    categories,
-    filteredCategories,
-    searchQuery,
-    setSearchQuery: onChangeQuery,
-  };
-}

@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import HomeScreen from './HomeScreen';
+import HomeScreen from '../navigation/HomeScreen';
 import CategoryScreen from './CategoryScreen';
 import CategoryDetailScreen from './CategoryDetailScreen';
 import WishlistScreen from './WishlistScreen';
@@ -12,6 +12,11 @@ import WishlistSearchScreen from './WishlistSearchScreen';
 import CartScreen from './CartScreen';
 import MyOrderScreen from './MyOrderScreen';
 import ProfileScreen from './ProfileScreen';
+import ProductDetailScreen from '../components/ProductDetailScreen'; 
+import PaymentScreen from '../components/Paymentscreen';
+import ReviewOrderScreen from '../components/ReviewOrderScreen';
+import AddressManager from '../components/AddressManager';
+
 
 import Header from '../components/header';
 import Footer from '../components/footer';
@@ -116,15 +121,22 @@ export default function AppNavigator() {
             };
           }}
         >
-          <Stack.Screen name="HomeTabs"      component={HomeTabsStack}       options={{ headerShown: true }} />
+          <Stack.Screen name="HomeTabs"       component={HomeTabsStack}       options={{ headerShown: true }} />
           <Stack.Screen name="Wishlist"       component={WishlistScreen} />
           <Stack.Screen name="WishlistSearch" component={WishlistSearchScreen} />
           <Stack.Screen name="Cart"           component={CartScreen} />
           <Stack.Screen name="Profile"        component={ProfileScreen} />
           <Stack.Screen name="MyOrder"        component={MyOrderScreen} />
           <Stack.Screen name="Category"       component={CategoryScreen} />
+          <Stack.Screen name="ReviewOrder"    component={ReviewOrderScreen}   options={{ title: 'Review Your Order' }}/>
+          <Stack.Screen name="AddressManager" component={AddressManager} options={{ title: 'Manage Address' }} />
+          
+          {/* 👇 2. Added the Product Detail Screen (Header hidden so we can use our custom one) */}
+          <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} options={{ headerShown: false }} />
+          
           <Stack.Screen name="CategoryDetail" component={CategoryDetailScreen} options={{ headerShown: false }} />
           <Stack.Screen name="Home"           component={HomeScreen} />
+          <Stack.Screen name="Payment"        component={PaymentScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
     </ThemeContext.Provider>

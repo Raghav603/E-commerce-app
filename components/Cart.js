@@ -207,6 +207,28 @@ const Cart = ({ theme }) => {
         contentContainerStyle={styles.listContent}
         ListFooterComponent={renderFooter}
       />
+      
+      {/* ── Sticky checkout bar ───────────────────────────────── */}
+      <View style={[styles.checkoutBar, { backgroundColor: c.cardBg, borderTopColor: c.border }]}>
+        <View>
+          <Text style={[styles.checkoutTotal, { color: c.text }]}>
+            ₹{totalFinalPrice.toLocaleString('en-IN')}
+          </Text>
+          {totalDiscount > 0 && (
+            <Text style={[styles.checkoutSaved, { color: c.green }]}>
+              Save ₹{totalDiscount.toLocaleString('en-IN')}
+            </Text>
+          )}
+        </View>
+        <TouchableOpacity
+          style={[styles.checkoutBtn, { backgroundColor: c.green }]}
+          activeOpacity={0.85}
+          // 👈 CHANGED: Navigate to ReviewOrder instead of Payment
+          onPress={() => navigation.navigate('ReviewOrder')} 
+        >
+          <Text style={styles.checkoutBtnText}>Buy Now →</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -218,7 +240,7 @@ const styles = StyleSheet.create({
   emptyText: { fontSize: 18, fontWeight: '600', marginBottom: 6 },
   emptySubText: { fontSize: 13, textAlign: 'center', lineHeight: 18 },
 
-  listContent: { paddingBottom: 20 },
+  listContent: { paddingBottom: 80 },
 
   // ── CART ITEM CARD ──
   card: {
@@ -329,7 +351,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  yayText: { fontSize: 13, fontWeight: '700' }
-});
+  yayText: { fontSize: 13, fontWeight: '700' },
 
+  // ── CHECKOUT BAR ──
+  checkoutBar: {
+    position: 'absolute',
+    bottom: 0, left: 0, right: 0,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+  },
+  checkoutTotal:   { fontSize: 20, fontWeight: '800' },
+  checkoutSaved:   { fontSize: 11, fontWeight: '600', marginTop: 2 },
+  checkoutBtn:     { paddingHorizontal: 24, paddingVertical: 12, borderRadius: 10 },
+  checkoutBtnText: { color: '#fff', fontSize: 15, fontWeight: '700' },
+});
 export default Cart;

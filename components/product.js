@@ -7,11 +7,14 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native'; // 👈 1. Imported useNavigation
 import { addToCart, removeFromCart } from './redux/action';
 import { addToWishlist, removeFromWishlist } from './redux/wishlistActions';
 
 const Product = ({ item, theme }) => {
   const dispatch = useDispatch();
+  const navigation = useNavigation(); // 👈 2. Initialized navigation
+
   const cartItems     = useSelector(state => state.Reducer);
   const wishlistItems = useSelector(state => state.WishlistReducer || []);
 
@@ -53,11 +56,16 @@ const Product = ({ item, theme }) => {
   const rating = item.rating ?? null;
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.card }]}>
+    // 👇 3. Changed View to TouchableOpacity and added onPress navigation
+    <TouchableOpacity 
+      style={[styles.card, { backgroundColor: colors.card }]}
+      activeOpacity={0.95}
+      onPress={() => navigation.navigate('ProductDetailScreen', { product: item })}
+    >
 
       {/* ── Image + badges ─────────────────────────────────── */}
       <View style={styles.imageContainer}>
-        <Image source={{ uri: item.image }} style={styles.image} />
+        <Image source={{ uri: item.image || item.thumbnail }} style={styles.image} />
 
         {/* Discount badge */}
         {discount > 0 && (
@@ -79,7 +87,7 @@ const Product = ({ item, theme }) => {
       {/* ── Product info ────────────────────────────────────── */}
       <View style={styles.infoContainer}>
         <Text style={[styles.name, { color: colors.text }]} numberOfLines={2}>
-          {item.name}
+          {item.name || item.title}
         </Text>
 
         {/* Rating row */}
@@ -130,7 +138,7 @@ const Product = ({ item, theme }) => {
           )}
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
