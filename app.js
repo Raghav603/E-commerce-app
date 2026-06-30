@@ -1,20 +1,9 @@
 import React from 'react';
-import { Provider } from 'react-redux';
 
-import AppNavigator from './navigation/AppNavigator';
-import store from './components/redux/store';
+import AppNavigator from './src/navigation/AppNavigator';
 
 const App = () => {
-  return (
-    <Provider store={store}>
-      <AppNavigator />
-    </Provider>
-  );
+  return <AppNavigator />;
 };
 
 export default App;
-
-
-// payment
-// pdp
-// 
