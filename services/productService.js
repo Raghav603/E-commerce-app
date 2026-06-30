@@ -22,6 +22,16 @@ export const productService = {
       rating: p.rating,
       category: p.category,
       isMall: false,
+
+      description: p.description,
+      reviews: p.reviews,
+      stock: p.stock,
+      brand: p.brand,
+      warrantyInformation: p.warrantyInformation,
+      shippingInformation: p.shippingInformation,
+      returnPolicy: p.returnPolicy,
+      dimensions: p.dimensions,
+      sku: p.sku
     }));
   },
 
