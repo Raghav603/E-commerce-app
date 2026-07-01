@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Footer = ({ activeTab, theme, onHomePress, onCategoryPress, onMyOrderPress, onProfilePress, onBackPressFromFooter }) => {
 
@@ -12,23 +13,36 @@ const Footer = ({ activeTab, theme, onHomePress, onCategoryPress, onMyOrderPress
   return (
     <View style={[styles.footerContainer, { backgroundColor: themeColors.background, borderTopColor: themeColors.border }]}>
       <TouchableOpacity style={styles.tabBtn} onPress={onHomePress}>
-        <Text style={[styles.iconText, { color: themeColors.text }]}>🏠</Text>
-        <Text style={[styles.tabText, { color: themeColors.text }, activeTab === 'Home' && { color: themeColors.active, fontWeight: 'bold' }]}>Home</Text>
+        <Ionicons 
+          name={activeTab === 'Home' ? "home" : "home-outline"} 
+          size={24} 
+          color={activeTab === 'Home' ? themeColors.active : themeColors.text} 
+        />
+        <Text style={[styles.tabText, { color: themeColors.text }, activeTab === 'Home' && { color: themeColors.active }]}>Home</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.tabBtn} onPress={onCategoryPress}>
-        <Text style={[styles.iconText, { color: themeColors.text }]}>🔍</Text>
-        <Text style={[styles.tabText, { color: themeColors.text }, activeTab === 'Category' && { color: themeColors.active, fontWeight: 'bold' }]}>Category</Text>
+        <Ionicons 
+          name={activeTab === 'Category' ? "search" : "search-outline"} 
+          size={24} 
+          color={activeTab === 'Category' ? themeColors.active : themeColors.text} 
+        />
+        <Text style={[styles.tabText, { color: themeColors.text }, activeTab === 'Category' && { color: themeColors.active }]}>Category</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.tabBtn} onPress={onMyOrderPress}>
-        <Text style={[styles.iconText, { color: themeColors.text }]}>📦</Text>
-        <Text style={[styles.tabText, { color: themeColors.text }, activeTab === 'MyOrder' && { color: themeColors.active, fontWeight: 'bold' }]}>MyOrder</Text>
+        <Ionicons 
+          name={activeTab === 'MyOrder' ? "cube" : "cube-outline"} 
+          size={24} 
+          color={activeTab === 'MyOrder' ? themeColors.active : themeColors.text} 
+        />
+        <Text style={[styles.tabText, { color: themeColors.text }, activeTab === 'MyOrder' && { color: themeColors.active }]}>My Order</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.tabBtn} onPress={() => {
-        if (activeTab === 'Category' && onBackPressFromFooter) return onBackPressFromFooter();
-        return onProfilePress();
-      }}>
-        <Text style={[styles.iconText, { color: themeColors.text }]}>👤</Text>
-        <Text style={[styles.tabText, { color: themeColors.text }, activeTab === 'Profile' && { color: themeColors.active, fontWeight: 'bold' }]}>Profile</Text>
+      <TouchableOpacity style={styles.tabBtn} onPress={onProfilePress}>
+        <Ionicons 
+          name={activeTab === 'Profile' ? "person" : "person-outline"} 
+          size={24} 
+          color={activeTab === 'Profile' ? themeColors.active : themeColors.text} 
+        />
+        <Text style={[styles.tabText, { color: themeColors.text }, activeTab === 'Profile' && { color: themeColors.active }]}>Profile</Text>
       </TouchableOpacity>
     </View>
   );
@@ -45,13 +59,10 @@ const styles = StyleSheet.create({
   tabBtn: {
     alignItems: 'center',
   },
-  iconText: {
-    fontSize: 20,
-    marginBottom: 4,
-  },
   tabText: {
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
+    marginTop: 4,
   },
 });
 

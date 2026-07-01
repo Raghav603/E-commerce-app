@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 import Product from '../components/product';
 import { useHomeViewModel } from '../../viewmodels/homeViewModel';
@@ -25,26 +26,31 @@ import ComprehensiveFilterModal from '../components/modals/ComprehensiveFilterMo
 
 const CHIP_COLORS = [
   '#FCE4EC', '#F3E5F5', '#E8EAF6', '#E3F2FD',
-  '#E0F2F1', '#F9FBE7', '#FFF8E1', '#FBE9E7',
-  '#EDE7F6', '#E0F7FA', '#F1F8E9', '#FFF3E0',
+  '#E0F2F1', '#F9FBE7', '#FFF8E1', '#FBE9E7'
 ];
 const getCategoryColor = (index) => CHIP_COLORS[index % CHIP_COLORS.length];
+
 
 // ─── Horizontal Category Row (Chips ONLY navigate) ───────────────────────────
 const CategoryRow = ({ resolvedTheme, filteredCategories }) => {
   const navigation = useNavigation();
   const textColor = resolvedTheme === 'dark' ? '#fff' : '#1A1A1A';
-  const allCatBg  = resolvedTheme === 'dark' ? '#2A2A2A' : '#FCE4EC';
+  const allCatBg  = resolvedTheme === 'dark' ? '#1A2E22' : '#E8F5E9';
 
   if (!filteredCategories?.length) return null;
 
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.rowContainer}>
       <TouchableOpacity style={styles.chipWrapper} onPress={() => navigation.navigate('Category')} activeOpacity={0.75}>
-        <View style={[styles.circle, { backgroundColor: allCatBg }]}>
-          <Text style={styles.circleIcon}>⊞</Text>
+        <View style={[styles.circle, styles.allCategoriesCircle, { backgroundColor: allCatBg }]}>
+          <View style={styles.gridIconContainer}>
+            <View style={[styles.gridDot, { backgroundColor: '#5DB075' }]} />
+            <View style={[styles.gridDot, { backgroundColor: '#5DB075' }]} />
+            <View style={[styles.gridDot, { backgroundColor: '#5DB075' }]} />
+            <View style={[styles.gridDot, { backgroundColor: '#5DB075' }]} />
+          </View>
         </View>
-        <Text style={[styles.chipLabel, { color: textColor }]} numberOfLines={2}>Categories</Text>
+        <Text style={[styles.chipLabel, { color: textColor }]} numberOfLines={2}>All{'\n'}Categories</Text>
       </TouchableOpacity>
 
       {filteredCategories.map((item, index) => {
@@ -103,18 +109,26 @@ const FilterBar = ({ theme, onSortPress, onCategoryPress, onGenderPress, onCompr
       </TouchableOpacity>
       <View style={[styles.divider, { backgroundColor: borderColor }]} />
       <TouchableOpacity style={styles.filterButton} onPress={onComprehensiveFilterPress}>
-        <Text style={[styles.filterIcon, { color: textColor, fontSize: 16, marginBottom: 2 }]}>≡</Text>
-        <Text style={[styles.filterText, { color: textColor }]}>Filters</Text>
+        <Text style={[styles.filterIcon, { color: '#5DB075', fontSize: 16, marginBottom: 2 }]}>≡</Text>
+        <Text style={[styles.filterText, { color: '#5DB075', fontWeight: '700' }]}>Filters</Text>
       </TouchableOpacity>
     </View>
   );
 };
 
 // ─── Main HomeScreen Component ────────────────────────────────────────────────
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const { resolvedTheme } = useContext(ThemeContext);
   const flatListRef = useRef(null);
   
+  const isDark = resolvedTheme === 'dark';
+  const colors = {
+    searchBg: isDark ? '#1A1A1A' : '#FFFFFF',
+    border: isDark ? '#333' : '#E0E0E0',
+    secondaryText: isDark ? '#A9A9A9' : '#777',
+    text: isDark ? '#FFF' : '#1A1A1A',
+  };
+
   const { 
     products, loading, refreshing, loadingMore, error, hasMore, 
     refresh, loadMore, applySort, currentSort, 
@@ -158,7 +172,7 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: resolvedTheme === 'dark' ? '#000' : '#F7F8FA' }]}>
+    <View style={[styles.container, { backgroundColor: isDark ? '#000' : '#F7F8FA' }]}>
       
       <FlatList
         numColumns={2}
@@ -167,6 +181,17 @@ export default function HomeScreen() {
         keyExtractor={(item, index) => String(`${item.id}-${index}`)}
         ListHeaderComponent={
           <View>
+            {/* SEARCH BAR IMPLEMENTED HERE */}
+            <TouchableOpacity
+              style={[styles.homeSearchBar, { backgroundColor: colors.searchBg, borderColor: colors.border }]}
+              activeOpacity={0.8}
+              onPress={() => navigation.navigate('Search')}
+            >
+              <Ionicons name="search" size={20} color={colors.secondaryText} style={{ marginRight: 10 }} />
+              <Text style={{ color: colors.secondaryText, flex: 1 }}>Search for products...</Text>
+              <Ionicons name="scan-outline" size={20} color={colors.text} />
+            </TouchableOpacity>
+
             <CategoryRow 
               resolvedTheme={resolvedTheme} 
               filteredCategories={filteredCategories} 
@@ -187,12 +212,8 @@ export default function HomeScreen() {
           </View>
         )}
         contentContainerStyle={styles.listContent}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor="#5DB075" />}
-        onEndReached={() => {
-          if (!loading && !loadingMore && hasMore) {
-            loadMore();
-          }
-        }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refresh} />}
+        onEndReached={() => !loading && !loadingMore && hasMore && loadMore()}
         onEndReachedThreshold={0.5}
         ListFooterComponent={loadingMore && products.length > 0 ? <ActivityIndicator style={styles.loader} size="small" color="#5DB075" /> : null}
         onScroll={(e) => setShowScrollTop(e.nativeEvent.contentOffset.y > 500)}
@@ -257,6 +278,9 @@ const styles = StyleSheet.create({
   rowContainer: { paddingHorizontal: 12, paddingVertical: 14, alignItems: 'flex-start' },
   chipWrapper: { alignItems: 'center', marginRight: 16, width: 68 },
   circle: { width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
+  allCategoriesCircle: { borderWidth: 1.5, borderColor: '#5DB075' },
+  gridIconContainer: { width: 24, height: 24, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between' },
+  gridDot: { width: 10, height: 10, borderRadius: 3 },
   circleImage: { width: 64, height: 64, borderRadius: 32, resizeMode: 'cover' },
   circleIcon: { fontSize: 28, color: '#E91E63' },
   circleInitial: { fontSize: 24, fontWeight: '700', color: '#555' },
@@ -271,4 +295,14 @@ const styles = StyleSheet.create({
   
   topButton: { position: 'absolute', bottom: 20, right: 20, backgroundColor: '#5DB075', width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', elevation: 8 },
   buttonText: { color: '#FFFFFF', fontSize: 24, fontWeight: 'bold' },
+  homeSearchBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 16,
+    marginVertical: 12,
+    height: 48,
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+  },
 });

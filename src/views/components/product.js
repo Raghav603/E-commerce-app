@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native'; // 👈 1. Imported useNavigation
 import { addToCart, removeFromCart } from '../../models/redux/cart/action';
 import { addToWishlist, removeFromWishlist } from '../../models/redux/wishlist/wishlistActions';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Product = ({ item, theme }) => {
   const dispatch = useDispatch();
@@ -80,7 +81,7 @@ const Product = ({ item, theme }) => {
           onPress={toggleLike}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Text style={styles.likeIcon}>{isLiked ? '❤️' : '🤍'}</Text>
+          <Text style={styles.likeIcon}>{isLiked ? '❤️' : '♡'}</Text>
         </TouchableOpacity>
       </View>
 
@@ -93,24 +94,21 @@ const Product = ({ item, theme }) => {
         {/* Rating row */}
         {rating !== null && (
           <View style={styles.ratingRow}>
-            <View style={styles.ratingBadge}>
-              <Text style={styles.ratingStar}>★</Text>
-              <Text style={styles.ratingValue}>{Number(rating).toFixed(1)}</Text>
-            </View>
+            <Ionicons name="star" size={11} color="#5DB075" style={{ marginRight: 3 }} />
+            <Text style={[styles.ratingValueInline, { color: colors.text }]}>{Number(rating).toFixed(1)}</Text>
           </View>
         )}
 
-        {/* Price row + add to cart */}
-        <View style={styles.bottomRow}>
-          <View>
-            <Text style={styles.price}>₹{currentPrice.toLocaleString('en-IN')}</Text>
-            {originalPriceINR && originalPriceINR > currentPrice && (
-              <Text style={[styles.originalPrice, { color: colors.subText }]}>
-                ₹{originalPriceINR.toLocaleString('en-IN')}
-              </Text>
-            )}
-          </View>
+        {/* Price */}
+        <Text style={styles.price}>₹{currentPrice.toLocaleString('en-IN')}</Text>
+        {originalPriceINR && originalPriceINR > currentPrice && (
+          <Text style={[styles.originalPrice, { color: colors.subText }]}>
+            ₹{originalPriceINR.toLocaleString('en-IN')}
+          </Text>
+        )}
 
+        {/* Qty / Add button row */}
+        <View style={styles.bottomRow}>
           {itemCount > 0 ? (
             <View style={[styles.counter, { backgroundColor: colors.counterBg }]}>
               <TouchableOpacity
@@ -145,24 +143,28 @@ const Product = ({ item, theme }) => {
 const styles = StyleSheet.create({
   card: {
     flex: 1,
-    borderRadius: 16,
+    borderRadius: 14,
     marginBottom: 12,
-    overflow: 'hidden',
-    elevation: 4,
+    overflow: 'visible',
+    elevation: 2,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
   },
 
   // ── Image ──────────────────────────────────────────────
   imageContainer: {
     position: 'relative',
+    borderTopLeftRadius: 14,
+    borderTopRightRadius: 14,
+    overflow: 'hidden',
   },
   image: {
     width: '100%',
-    height: 160,
+    height: 150,
     resizeMode: 'cover',
+    backgroundColor: '#fff',
   },
 
   discountBadge: {
@@ -171,31 +173,26 @@ const styles = StyleSheet.create({
     left: 10,
     backgroundColor: '#E53935',
     borderRadius: 6,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   discountText: {
     color: '#fff',
-    fontSize: 10,
+    fontSize: 11,
     fontWeight: '800',
-    letterSpacing: 0.3,
   },
 
   likeBtn: {
     position: 'absolute',
     top: 8,
     right: 8,
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.95)',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.15,
-    shadowRadius: 2,
+    elevation: 2,
   },
   likeIcon: {
     fontSize: 14,
@@ -203,87 +200,79 @@ const styles = StyleSheet.create({
 
   // ── Info section ────────────────────────────────────────
   infoContainer: {
-    padding: 10,
-    paddingTop: 8,
+    padding: 12,
+    paddingTop: 10,
   },
   name: {
     fontSize: 13,
     fontWeight: '600',
     lineHeight: 18,
-    marginBottom: 4,
+    marginBottom: 6,
   },
 
   // ── Rating ─────────────────────────────────────────────
   ratingRow: {
-    marginBottom: 6,
-  },
-  ratingBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#5DB075',
+    marginBottom: 8,
+    backgroundColor: '#E8F5E9',
     alignSelf: 'flex-start',
-    borderRadius: 5,
+    borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
-  ratingStar: {
-    color: '#fff',
-    fontSize: 10,
-    marginRight: 2,
-  },
-  ratingValue: {
-    color: '#fff',
-    fontSize: 10,
+  ratingValueInline: {
+    fontSize: 11,
     fontWeight: '700',
   },
 
   // ── Price + cart ────────────────────────────────────────
   bottomRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 2,
+    justifyContent: 'flex-end',
+    marginTop: -28,
   },
   price: {
-    fontSize: 15,
+    fontSize: 17,
     fontWeight: '800',
     color: '#5DB075',
   },
   originalPrice: {
-    fontSize: 11,
+    fontSize: 12,
     textDecorationLine: 'line-through',
     marginTop: 1,
+    marginBottom: 8,
   },
 
   addBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
+    width: 30,
+    height: 30,
+    borderRadius: 8,
     backgroundColor: '#5DB075',
     justifyContent: 'center',
     alignItems: 'center',
   },
   plus: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '700',
-    lineHeight: 22,
+    lineHeight: 20,
   },
 
   counter: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 10,
+    borderRadius: 8,
     paddingHorizontal: 8,
-    paddingVertical: 4,
+    paddingVertical: 5,
   },
   count: {
-    marginHorizontal: 8,
+    marginHorizontal: 10,
     fontWeight: '700',
     fontSize: 13,
   },
   counterText: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#5DB075',
     fontWeight: '700',
   },

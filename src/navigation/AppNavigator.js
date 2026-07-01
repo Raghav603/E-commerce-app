@@ -14,7 +14,9 @@ import ProfileScreen from '../views/screens/ProfileScreen';
 import ProductDetailScreen from '../views/screens/ProductDetailScreen'; 
 import PaymentScreen from '../views/screens/Paymentscreen';
 import ReviewOrderScreen from '../views/screens/ReviewOrderScreen';
+import ProductSearchScreen from '../views/screens/ProductSearchScreen';
 import AddressManager from '../views/screens/AddressManager';
+import EditProfileScreen from '../views/screens/EditProfileScreen';
 
 
 import Header from '../views/components/header';
@@ -45,7 +47,7 @@ const HeaderWrapper = ({ navigation, activeTab }) => {
       onBackPress={() => {
         if (navigation.canGoBack()) navigation.goBack();
       }}
-      onProfilePress={() => navigation.navigate('Profile')}
+      onProfilePress={() => navigation.navigate('HomeTabs', { screen: 'Profile' })}
       onWishlistPress={() => navigation.navigate('Wishlist')}
       onCartPress={() => navigation.navigate('Cart')}
       onWishlistSearchPress={() => {
@@ -123,11 +125,11 @@ export default function AppNavigator() {
           <Stack.Screen name="HomeTabs"       component={HomeTabsStack}       options={{ headerShown: true }} />
           <Stack.Screen name="Wishlist"       component={WishlistScreen} />
           <Stack.Screen name="Cart"           component={CartScreen} />
-          <Stack.Screen name="Profile"        component={ProfileScreen} />
-          <Stack.Screen name="MyOrder"        component={MyOrderScreen} />
           <Stack.Screen name="Category"       component={CategoryScreen} />
           <Stack.Screen name="ReviewOrder"    component={ReviewOrderScreen}   options={{ title: 'Review Your Order' }}/>
+          <Stack.Screen name="Search"         component={ProductSearchScreen} options={{ headerShown: false }} />
           <Stack.Screen name="AddressManager" component={AddressManager} options={{ title: 'Manage Address' }} />
+          <Stack.Screen name="EditProfile"    component={EditProfileScreen}   options={{ headerShown: false }} />
           
           {/* 👇 2. Added the Product Detail Screen (Header hidden so we can use our custom one) */}
           <Stack.Screen name="ProductDetailScreen" component={ProductDetailScreen} options={{ headerShown: false }} />

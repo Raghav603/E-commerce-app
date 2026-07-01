@@ -49,9 +49,9 @@ export default function ProductDetailScreen({ route }) {
         </TouchableOpacity>
         
         <View style={styles.headerRight}>
-          <TouchableOpacity style={styles.iconBtn} onPress={() => navigateTo('Search')}>
+          {/* <TouchableOpacity style={styles.iconBtn} onPress={() => navigateTo('Search')}>
             <Text style={[styles.iconText, { color: c.text }]}>🔍</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           
           <TouchableOpacity style={styles.iconBtn} onPress={() => navigateTo('Wishlist')}>
             <Text style={[styles.iconText, { color: c.text }]}>❤️</Text>
