@@ -258,7 +258,7 @@ export default function HomeScreen({ navigation }) {
         currentFilters={filters}
         onApply={(newFilters) => {
           setComprehensiveFilterModalVisible(false);
-          applyAllFilters(newFilters); // 👈 Correctly applies all advanced filters!
+          applyAllFilters(newFilters); //  Correctly applies all advanced filters!
         }}
         theme={resolvedTheme}
       />

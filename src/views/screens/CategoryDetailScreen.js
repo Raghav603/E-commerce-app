@@ -3,6 +3,9 @@ import {
   View, FlatList, ActivityIndicator, Text, StyleSheet, 
   TouchableOpacity, RefreshControl, TextInput 
 } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+
 import Product from '../components/product';
 import { useHomeViewModel } from '../../viewmodels/homeViewModel';
 import { ThemeContext } from '../../navigation/AppNavigator';
@@ -58,7 +61,7 @@ export default function CategoryDetailScreen({ route, navigation }) {
                 setSearchQuery('');    // Clear input
               }}
             >
-              <Text style={[styles.backIcon, { color: textColor }]}>❮</Text>
+              <Ionicons name="chevron-back" size={24} color={textColor} />
             </TouchableOpacity>
             
             <TextInput
@@ -75,7 +78,7 @@ export default function CategoryDetailScreen({ route, navigation }) {
             
             {searchQuery.length > 0 && (
               <TouchableOpacity onPress={() => setSearchQuery('')} style={styles.clearSearchBtn}>
-                <Text style={[styles.clearIcon, { color: textColor }]}>✕</Text>
+                <Ionicons name="close-circle" size={20} color={textColor} />
               </TouchableOpacity>
             )}
           </>
@@ -87,7 +90,7 @@ export default function CategoryDetailScreen({ route, navigation }) {
               onPress={() => navigation.goBack()}
               activeOpacity={0.7}
             >
-              <Text style={[styles.backIcon, { color: textColor }]}>❮</Text>
+              <Ionicons name="chevron-back" size={24} color={textColor} />
             </TouchableOpacity>
             
             <Text style={[styles.headerText, { color: textColor }]} numberOfLines={1}>
@@ -97,23 +100,23 @@ export default function CategoryDetailScreen({ route, navigation }) {
             <View style={styles.headerIconsContainer}>
               <TouchableOpacity 
                 style={styles.iconButton} 
-                onPress={() => setIsSearching(true)} // 👈 Opens Search Bar
+                onPress={() => setIsSearching(true)} // Opens Search Bar
               >
-                <Text style={styles.headerIcon}>🔍︎</Text>
+                <Ionicons name="search" size={22} color={textColor} />
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={styles.iconButton} 
                 onPress={() => navigation.navigate('Wishlist')}
               >
-                <Text style={[styles.headerIcon, { color: textColor }]}>❤️</Text>
+                <Ionicons name="heart-outline" size={22} color={textColor} />
               </TouchableOpacity>
 
               <TouchableOpacity 
                 style={styles.iconButton} 
                 onPress={() => navigation.navigate('Cart')}
               >
-                <Text style={styles.headerIcon}>🛒</Text>
+                <Ionicons name="cart-outline" size={22} color={textColor} />
               </TouchableOpacity>
             </View>
           </>
@@ -179,10 +182,6 @@ const styles = StyleSheet.create({
     padding: 4, 
     marginRight: 12,            
   },
-  backIcon: { 
-    fontSize: 18,               
-    marginTop: -2,              
-  },
   headerText: { 
     fontSize: 18, 
     fontWeight: '600', 
@@ -198,9 +197,6 @@ const styles = StyleSheet.create({
     padding: 6,
     marginLeft: 12, 
   },
-  headerIcon: {
-    fontSize: 20,
-  },
 
   // ─── New Search Input Styles ───
   searchInput: {
@@ -214,10 +210,6 @@ const styles = StyleSheet.create({
   clearSearchBtn: {
     padding: 8,
     marginLeft: 6,
-  },
-  clearIcon: {
-    fontSize: 18,
-    fontWeight: '600',
   },
   
   listContent: { paddingHorizontal: 8, paddingTop: 10, paddingBottom: 100 },

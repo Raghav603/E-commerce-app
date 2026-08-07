@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
-import Ionicons from 'react-native-vector-icons/Ionicons'; // 👈 Vector Icon Import
+import Ionicons from 'react-native-vector-icons/Ionicons'; //  Vector Icon Import
 
 import { useProfileViewModel } from '../../viewmodels/useProfileViewModel';
 
