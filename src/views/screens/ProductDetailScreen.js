@@ -4,6 +4,7 @@ import {
   FlatList, Dimensions 
 } from 'react-native';
 import { useProductDetailViewModel } from '../../viewmodels/useProductDetailViewModel';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const { width } = Dimensions.get('window');
 
@@ -45,20 +46,20 @@ export default function ProductDetailScreen({ route }) {
       {/* ─── HEADER ─── */}
       <View style={[styles.header, { backgroundColor: c.bg, borderBottomColor: c.border }]}>
         <TouchableOpacity style={styles.iconBtn} onPress={goBack}>
-          <Text style={[styles.iconText, { color: c.text }]}>❮</Text>
+          <Ionicons name="chevron-back" size={24} color={c.text} />
         </TouchableOpacity>
         
         <View style={styles.headerRight}>
           {/* <TouchableOpacity style={styles.iconBtn} onPress={() => navigateTo('Search')}>
-            <Text style={[styles.iconText, { color: c.text }]}>🔍</Text>
+            <Ionicons name="search" size={24} color={c.text} />
           </TouchableOpacity> */}
           
           <TouchableOpacity style={styles.iconBtn} onPress={() => navigateTo('Wishlist')}>
-            <Text style={[styles.iconText, { color: c.text }]}>❤️</Text>
+            <Ionicons name="heart-outline" size={24} color={c.text} />
           </TouchableOpacity>
           
           <TouchableOpacity style={styles.iconBtn} onPress={() => navigateTo('Cart')}>
-            <Text style={[styles.iconText, { color: c.text }]}>🛒</Text>
+            <Ionicons name="cart-outline" size={24} color={c.text} />
             {cartCount > 0 && (
               <View style={[styles.badgeContainer, { backgroundColor: c.badge }]}>
                 <Text style={styles.badgeText}>{cartCount}</Text>
@@ -104,12 +105,12 @@ export default function ProductDetailScreen({ route }) {
             
             <View style={styles.actionIcons}>
               <TouchableOpacity style={styles.actionBtn} onPress={toggleWishlist}>
-                <Text style={styles.actionIconText}>{isLiked ? '❤️' : '🤍'}</Text>
+                <Ionicons name={isLiked ? "heart" : "heart-outline"} size={24} color={isLiked ? c.badge : c.text} />
                 <Text style={[styles.actionLabel, { color: c.text }]}>Wishlist</Text>
               </TouchableOpacity>
               
               <TouchableOpacity style={styles.actionBtn}>
-                <Text style={[styles.actionIconText, { color: c.text }]}>➦</Text>
+                <Ionicons name="share-social-outline" size={22} color={c.text} />
                 <Text style={[styles.actionLabel, { color: c.text }]}>Share</Text>
               </TouchableOpacity>
             </View>
@@ -193,14 +194,16 @@ export default function ProductDetailScreen({ route }) {
       {/* ─── BOTTOM FIXED BAR ─── */}
       <View style={[styles.bottomBar, { backgroundColor: c.bg, borderTopColor: c.border }]}>
         <TouchableOpacity style={[styles.bottomBtn, styles.cartBtn, { borderColor: c.border }]} onPress={handleAddToCart}>
-          <Text style={[styles.cartBtnText, { color: c.text }]}>🛒 Add to Cart</Text>
+          <Ionicons name="cart-outline" size={20} color={c.text} style={{ marginRight: 8 }} />
+          <Text style={[styles.cartBtnText, { color: c.text }]}>Add to Cart</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={[styles.bottomBtn, styles.buyBtn, { backgroundColor: c.primary }]} 
           onPress={handleBuyNow}
         >
-          <Text style={styles.buyBtnText}>▶ Buy Now</Text>
+          <Ionicons name="flash-outline" size={20} color="#FFF" style={{ marginRight: 8 }} />
+          <Text style={styles.buyBtnText}>Buy Now</Text>
         </TouchableOpacity>
       </View>
 
@@ -217,7 +220,6 @@ const styles = StyleSheet.create({
   },
   headerRight: { flexDirection: 'row' },
   iconBtn: { padding: 8, marginLeft: 8, position: 'relative' }, 
-  iconText: { fontSize: 20, fontWeight: '600' },
   
   badgeContainer: {
     position: 'absolute', top: 2, right: 2, minWidth: 18, height: 18,
@@ -241,7 +243,6 @@ const styles = StyleSheet.create({
   productTitle: { flex: 1, fontSize: 18, lineHeight: 24, marginRight: 16 },
   actionIcons: { flexDirection: 'row', alignItems: 'center' },
   actionBtn: { alignItems: 'center', marginLeft: 16 },
-  actionIconText: { fontSize: 22, marginBottom: 2 },
   actionLabel: { fontSize: 11 },
 
   priceRow: { flexDirection: 'row', alignItems: 'center', marginTop: 12, marginBottom: 8 },
@@ -279,7 +280,7 @@ const styles = StyleSheet.create({
     position: 'absolute', bottom: 0, left: 0, right: 0, 
     flexDirection: 'row', padding: 12, borderTopWidth: 1, elevation: 10 
   },
-  bottomBtn: { flex: 1, paddingVertical: 14, borderRadius: 6, alignItems: 'center', justifyContent: 'center', marginHorizontal: 6 },
+  bottomBtn: { flex: 1, flexDirection: 'row', paddingVertical: 14, borderRadius: 6, alignItems: 'center', justifyContent: 'center', marginHorizontal: 6 },
   cartBtn: { borderWidth: 1 },
   cartBtnText: { fontSize: 16, fontWeight: '700' },
   buyBtnText: { color: '#FFF', fontSize: 16, fontWeight: '700' },

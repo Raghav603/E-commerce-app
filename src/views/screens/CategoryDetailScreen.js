@@ -139,7 +139,7 @@ export default function CategoryDetailScreen({ route, navigation }) {
         <FlatList
           numColumns={2}
           ref={flatListRef}
-          data={displayProducts} // 👈 Using filtered list
+          data={displayProducts} // Using filtered list
           keyExtractor={(item, index) => String(`${item.id}-${index}`)}
           renderItem={({ item }) => (
             <View style={styles.gridItem}>
